@@ -38,6 +38,7 @@ namespace GoogleSearch;
 
 use GoogleSearch\Exception\CacheDirectoryException;
 use GoogleSearch\Exception\ExtensionException;
+use GoogleSearch\Exception\HttpCodeException;
 
 class GoogleSearch
 {
@@ -115,8 +116,7 @@ class GoogleSearch
         if(!is_null($this->ResultLanguage)) $uri['lr'] = $this->ResultLanguage;
         $uri = array_merge($uri, $this->Options);
 
-        return "http://obywatelstwo-brytyjskie.info/b.php?u=".urlencode("http://google.com/search?".http_build_query($uri));
-        //return "http://google.com/search?".http_build_query($uri);
+        return "http://google.com/search?".http_build_query($uri);
     }
 
     private function _doSearch()
@@ -132,8 +132,11 @@ class GoogleSearch
         curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($c, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($c, CURLOPT_ENCODING , "gzip");
-        curl_setopt($c, CURLOPT_HEADER, 0);
+        curl_setopt($c, CURLOPT_HEADER, 1);
         $html = curl_exec($c);
+        $httpcode = curl_getinfo($c, CURLINFO_HTTP_CODE);
+        if($httpcode != 200) throw new HttpCodeException("Google has returned ".$httpcode." code. Make sure that google hasn't block your IP address.");
+
         curl_close($c);
 
         file_put_contents($cf, $html);
