@@ -23,6 +23,7 @@ class GoogleSearchElementLink
         $this->Link = $link;
 
         $this->Parts = parse_url($link);
+        $this->Parts['query'] = !isset($this->Parts['query']) ? "" : $this->Parts['query'];
         parse_str($this->Parts['query'], $this->Parts['query']);
 
         $this->Parts['query'] = (object)$this->Parts['query'];
